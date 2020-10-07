@@ -17,44 +17,56 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 abstract class Money  {
-   protected int amount;
+    protected int amount;
+    private String currency;
    
-   public boolean equals(Object object)  {
-      Money money = (Money) object;
-      return amount == money.amount && getClass().equals(money.getClass());
-   }
+    public boolean equals(Object object)  {
+        Money money = (Money) object;
+        return amount == money.amount && getClass().equals(money.getClass());
+    }
 
-   static Dollar dollar(int amount)  {
-      return new Dollar(amount);
-   }
-   
-   static Money franc(int amount) {
-      return new Franc(amount);
-   }
+    static Money dollar(int amount)  {
+      return new Dollar(amount, "USD");
+    }
+
+    static Money franc(int amount) {
+       return new Franc(amount, "CHF");
+    }
+
+    Money(int amount, String currency) {
+        this.amount = amount;
+        this.currency = currency;
+    }
 	
-   abstract Money times(int multiplier);  
+    abstract Money times(int multiplier);
+
+    String currency() {
+        return currency;
+    }
    
 }
 
 class Dollar extends Money {
-    Dollar(int amount){ 
-        this.amount = amount;
-    }			
     
-    Money times(int multiplier) {
-      return new Dollar(amount * multiplier);
+    Dollar(int amount, String currency)  {
+      super(amount, currency);
     }
-    
+
+    Money times(int multiplier)  {
+       return Money.dollar(amount * multiplier);
+    }
  }	
 
-class Franc extends Money{   
+class Franc extends Money{
    
-   Franc(int amount) {      
-      this.amount= amount;
-    }					
-    Money times(int multiplier)  {      
-       return new Franc(amount * multiplier);					
-    }   								
+    Franc(int amount, String currency) {
+      super(amount, currency);
+    }
+
+    Money times(int multiplier)  {
+       return Money.franc(amount * multiplier);
+    }
+
 }
 
 
@@ -65,9 +77,8 @@ public class Testes {
 
     @Test
     public void testMultiplication() {
-        Money five = Money.dollar(5);
-        assertEquals(new Dollar(10), five.times(2));
-        assertEquals(new Dollar(15), five.times(3));
+        assertEquals("USD", Money.dollar(1).currency());
+        assertEquals("CHF", Money.franc(1).currency());
     }
     
     @Test
@@ -85,6 +96,12 @@ public class Testes {
         assertEquals(Money.franc(10), five.times(2));
         assertEquals(Money.franc(15), five.times(3));
      } 
+    
+    @Test
+    public void testCurrency() {
+        assertEquals("USD", Money.dollar(1).currency());
+        assertEquals("CHF", Money.franc(1).currency());
+    }
     
     // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
